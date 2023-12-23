@@ -9,6 +9,9 @@ fi
 # Set the repository URL from the first command-line argument
 REPO_URL=$1
 
+# Ensure the REPO_URL ends with a single slash
+REPO_URL="${REPO_URL%/}/"
+
 # Extract the repository name from the URL for use as the default directory name
 REPO_NAME=$(basename $REPO_URL)
 
@@ -19,7 +22,7 @@ DEST_DIR="${2:-$REPO_NAME}"
 mkdir -p "$DEST_DIR"
 
 # Set the base URL for downloading files (specific to Hugging Face's URL structure)
-DOWNLOAD_BASE_URL="${REPO_URL}/resolve/main/"
+DOWNLOAD_BASE_URL="${REPO_URL}resolve/main/"
 
 # Create a random temporary directory for the repository clone
 REPO_TEMP_DIR=$(mktemp -d)
