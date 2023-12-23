@@ -6,6 +6,9 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
+# Store the current directory
+ORIGINAL_DIR=$(pwd)
+
 # Set the repository URL from the first command-line argument
 REPO_URL=$1
 
@@ -36,8 +39,8 @@ cd $REPO_TEMP_DIR
 # Get list of files in the repository
 FILES=$(git ls-tree -r HEAD --name-only)
 
-# Change to the destination directory for downloading
-cd $ORIGINAL_DIR/$DEST_DIR
+# Return to the original directory
+cd $ORIGINAL_DIR
 
 # Download each file
 for file in $FILES; do
@@ -45,15 +48,18 @@ for file in $FILES; do
     DOWNLOAD_URL="${DOWNLOAD_BASE_URL}${file}"
 
     # Create subdirectories as needed in the destination directory
-    mkdir -p "$(dirname "$file")"
+    SUBDIR_PATH="$DEST_DIR/$(dirname "$file")"
+    mkdir -p "$SUBDIR_PATH"
+
+    # Full path where the file will be saved
+    FULL_SAVE_PATH="$SUBDIR_PATH/$(basename "$file")"
+
+    # Print the full path for debugging
+    echo "Downloading $file to $FULL_SAVE_PATH"
 
     # Download the file
-    echo "Downloading $file..."
-    wget -P "$(dirname "$file")" $DOWNLOAD_URL
+    wget -O "$FULL_SAVE_PATH" $DOWNLOAD_URL
 done
-
-# Change back to the original directory
-cd $ORIGINAL_DIR
 
 # Clean up: remove the random temporary repository directory
 rm -rf $REPO_TEMP_DIR
