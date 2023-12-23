@@ -6,9 +6,6 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-# Store the current directory
-ORIGINAL_DIR=$(pwd)
-
 # Set the repository URL from the first command-line argument
 REPO_URL=$1
 
@@ -19,7 +16,7 @@ REPO_URL="${REPO_URL%/}/"
 REPO_NAME=$(basename $REPO_URL)
 
 # Use the second command-line argument as the destination directory, or default to a directory named after the repository
-DEST_DIR="${2:-$REPO_NAME}"
+DEST_DIR="${2:-$(pwd)/$REPO_NAME}"
 
 # Create the destination directory if it does not exist
 mkdir -p "$DEST_DIR"
@@ -38,9 +35,6 @@ cd $REPO_TEMP_DIR
 
 # Get list of files in the repository
 FILES=$(git ls-tree -r HEAD --name-only)
-
-# Return to the original directory
-cd $ORIGINAL_DIR
 
 # Download each file
 for file in $FILES; do
