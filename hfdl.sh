@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Repository: https://github.com/ShinChven/hfdl.git
+
 # Function to display usage information
 usage() {
     echo "Usage: script.sh [--ipynb] [--exclude pattern]... <repo_url> [destination_directory]"
