@@ -28,7 +28,7 @@ sudo chmod +x /usr/local/bin/hfdl
 
 In Jupyter notebooks:
 
-```ipynb
+```bash
 !curl -o /usr/local/bin/hfdl https://raw.githubusercontent.com/ShinChven/hfdl/main/hfdl.sh
 !chmod +x /usr/local/bin/hfdl
 ```
