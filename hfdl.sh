@@ -1,35 +1,10 @@
 #!/bin/bash
 
-# Author: ShinChven
-# Repository: https://github.com/ShinChven/hfdl 
-# Description:
-# This script is designed to download files from a specified Hugging Face repository.
-# It allows users to download all files from a repository to a local directory.
-# Optionally, it can generate wget commands for manual downloading, which is useful in Jupyter notebook environments.
+# Repository: https://github.com/ShinChven/hfdl.git
 
 # Function to display usage information
 usage() {
-    echo "Usage: hfdl <repo_url> [dir_name] [--ipynb]"
-    echo
-    echo "This script is used for downloading files from a specified Hugging Face repository."
-    echo
-    echo "Arguments:"
-    echo "  <repo_url>     Mandatory. The URL of the Hugging Face repository from which to download files."
-    echo "  [dir_name]     Optional. The name of the directory where the files will be downloaded."
-    echo "                 If not specified, files will be downloaded to a directory named after the repository."
-    echo "  --ipynb        Optional. If this flag is set, the script will print 'wget' commands for downloading the files"
-    echo "                 instead of downloading them directly. This is useful for environments like Jupyter notebooks."
-    echo
-    echo "Examples:"
-    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection"
-    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection custom_directory"
-    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection --ipynb"
-    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection custom_directory --ipynb"
-    echo
-    echo "Note:"
-    echo "  When using the --ipynb flag in a Jupyter notebook, prepend an exclamation mark (!) to each 'wget' command to execute it."
-    echo
-    echo "Repository: https://github.com/ShinChven/hfdl"
+    echo "Usage: script.sh [--ipynb] [--exclude pattern]... <repo_url> [destination_directory]"
     exit 1
 }
 
@@ -42,6 +17,7 @@ fi
 IPYNB_MODE=0
 REPO_URL=""
 DEST_DIR=""
+EXCLUDE_PATTERNS=()
 
 # Process arguments
 while (( "$#" )); do
@@ -49,6 +25,16 @@ while (( "$#" )); do
         --ipynb)
             IPYNB_MODE=1
             shift
+            ;;
+        --exclude)
+            shift
+            if [ -n "$1" ]; then
+                EXCLUDE_PATTERNS+=("$1")
+                shift
+            else
+                echo "Error: --exclude requires a pattern."
+                usage
+            fi
             ;;
         *)
             # If REPO_URL is not set, set it; otherwise, set DEST_DIR
@@ -101,6 +87,18 @@ FILES=$(git ls-tree -r HEAD --name-only)
 
 # Process each file
 for file in $FILES; do
+    skip_file=0
+    for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+        if [[ $file == $pattern ]]; then
+            skip_file=1
+            break
+        fi
+    done
+
+    if [ $skip_file -eq 1 ]; then
+        continue
+    fi
+
     # Remove './' from the start of the file path if present
     [[ $file == ./* ]] && file="${file:2}"
 
