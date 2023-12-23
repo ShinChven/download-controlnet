@@ -7,15 +7,19 @@ DOWNLOAD_BASE_URL="https://huggingface.co/lllyasviel/sd_control_collection/resol
 # Use the first command-line argument as the destination directory, or default to the current directory
 DEST_DIR="${1:-.}"
 
-# Clone the repository without checking out files
-git clone --no-checkout $REPO_URL repo_temp
+# Create a random temporary directory for the repository clone
+REPO_TEMP_DIR=$(mktemp -d)
 
-# Change to the repository directory
-cd repo_temp
+# Clone the repository without checking out files
+git clone --no-checkout $REPO_URL $REPO_TEMP_DIR
+
+# Change to the temporary repository directory
+cd $REPO_TEMP_DIR
 
 # Get list of files in the repository
-FILES=$(git ls-tree -r HEAD --name-only)
+FILES=$(git ls-tree -r HEAD --name-only | grep -E "\.safetensors$|\.pth$")
 
+# Return to the original directory
 cd ..
 
 # Download each file
@@ -28,10 +32,10 @@ for file in $FILES; do
 
     # Download the file
     echo "Downloading $file..."
-    wget -P "$DEST_DIR/$(dirname "$file")" "$DOWNLOAD_URL?download=true"
+    wget -P "$DEST_DIR/$(dirname "$file")" $DOWNLOAD_URL
 done
 
-# Clean up: remove the temporary repository directory
-rm -rf repo_temp
+# Clean up: remove the random temporary repository directory
+rm -rf $REPO_TEMP_DIR
 
 echo "All files have been downloaded to $DEST_DIR."
