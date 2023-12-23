@@ -1,8 +1,35 @@
 #!/bin/bash
 
+# Author: ShinChven
+# Repository: https://github.com/ShinChven/hfdl 
+# Description:
+# This script is designed to download files from a specified Hugging Face repository.
+# It allows users to download all files from a repository to a local directory.
+# Optionally, it can generate wget commands for manual downloading, which is useful in Jupyter notebook environments.
+
 # Function to display usage information
 usage() {
     echo "Usage: hfdl <repo_url> [dir_name] [--ipynb]"
+    echo
+    echo "This script is used for downloading files from a specified Hugging Face repository."
+    echo
+    echo "Arguments:"
+    echo "  <repo_url>     Mandatory. The URL of the Hugging Face repository from which to download files."
+    echo "  [dir_name]     Optional. The name of the directory where the files will be downloaded."
+    echo "                 If not specified, files will be downloaded to a directory named after the repository."
+    echo "  --ipynb        Optional. If this flag is set, the script will print 'wget' commands for downloading the files"
+    echo "                 instead of downloading them directly. This is useful for environments like Jupyter notebooks."
+    echo
+    echo "Examples:"
+    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection"
+    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection custom_directory"
+    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection --ipynb"
+    echo "  hfdl https://huggingface.co/lllyasviel/sd_control_collection custom_directory --ipynb"
+    echo
+    echo "Note:"
+    echo "  When using the --ipynb flag in a Jupyter notebook, prepend an exclamation mark (!) to each 'wget' command to execute it."
+    echo
+    echo "Repository: https://github.com/ShinChven/hfdl"
     exit 1
 }
 
