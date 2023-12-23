@@ -1,25 +1,61 @@
 #!/bin/bash
 
+# Function to display usage information
+usage() {
+    echo "Usage: hfdl <repo_url> [dir_name] [--ipynb]"
+    exit 1
+}
+
 # Check if at least one argument (repository URL) is provided
 if [ $# -lt 1 ]; then
-    echo "Usage: hfdl <repo_url> [dir_name]"
-    exit 1
+    usage
 fi
 
-# Set the repository URL from the first command-line argument
-REPO_URL=$1
+# Initialize variables
+IPYNB_MODE=0
+REPO_URL=""
+DEST_DIR=""
 
-# Ensure the REPO_URL ends with a single slash
-REPO_URL="${REPO_URL%/}/"
+# Process arguments
+while (( "$#" )); do
+    case "$1" in
+        --ipynb)
+            IPYNB_MODE=1
+            shift
+            ;;
+        *)
+            # If REPO_URL is not set, set it; otherwise, set DEST_DIR
+            if [ -z "$REPO_URL" ]; then
+                REPO_URL="${1%/}/"
+            elif [ -z "$DEST_DIR" ]; then
+                DEST_DIR=$1
+            else
+                # Unexpected additional arguments
+                usage
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Validate repository URL
+if [ -z "$REPO_URL" ]; then
+    echo "Error: Repository URL is required."
+    usage
+fi
 
 # Extract the repository name from the URL for use as the default directory name
 REPO_NAME=$(basename $REPO_URL)
 
-# Use the second command-line argument as the destination directory, or default to a directory named after the repository
-DEST_DIR="${2:-$(pwd)/$REPO_NAME}"
+# Set the destination directory, default to a directory named after the repository
+if [ -z "$DEST_DIR" ]; then
+    DEST_DIR="$(pwd)/$REPO_NAME"
+fi
 
-# Create the destination directory if it does not exist
-mkdir -p "$DEST_DIR"
+# Create the destination directory if it does not exist and not in ipynb mode
+if [ $IPYNB_MODE -eq 0 ]; then
+    mkdir -p "$DEST_DIR"
+fi
 
 # Set the base URL for downloading files (specific to Hugging Face's URL structure)
 DOWNLOAD_BASE_URL="${REPO_URL}resolve/main/"
@@ -36,7 +72,7 @@ cd $REPO_TEMP_DIR
 # Get list of files in the repository
 FILES=$(git ls-tree -r HEAD --name-only)
 
-# Download each file
+# Process each file
 for file in $FILES; do
     # Remove './' from the start of the file path if present
     [[ $file == ./* ]] && file="${file:2}"
@@ -44,20 +80,24 @@ for file in $FILES; do
     # Construct download URL
     DOWNLOAD_URL="${DOWNLOAD_BASE_URL}${file}"
 
-    # Create subdirectories as needed in the destination directory
-    mkdir -p "$DEST_DIR/$(dirname "$file")"
+    if [ $IPYNB_MODE -eq 1 ]; then
+        # Print the wget command
+        echo "!wget -O \"$DEST_DIR/$file\" $DOWNLOAD_URL"
+    else
+        # Create subdirectories as needed in the destination directory
+        mkdir -p "$DEST_DIR/$(dirname "$file")"
 
-    # Full path where the file will be saved
-    FULL_SAVE_PATH="$DEST_DIR/$file"
-
-    # Print the full path for debugging
-    echo "Downloading $file to $FULL_SAVE_PATH"
-
-    # Download the file
-    wget -O "$FULL_SAVE_PATH" $DOWNLOAD_URL
+        # Download the file
+        wget -O "$DEST_DIR/$file" $DOWNLOAD_URL
+    fi
 done
 
 # Clean up: remove the random temporary repository directory
 rm -rf $REPO_TEMP_DIR
 
-echo "All files have been downloaded to $DEST_DIR."
+# Final message
+if [ $IPYNB_MODE -eq 1 ]; then
+    echo "wget commands generated for all files."
+else
+    echo "All files have been downloaded to $DEST_DIR."
+fi
