@@ -38,15 +38,17 @@ FILES=$(git ls-tree -r HEAD --name-only)
 
 # Download each file
 for file in $FILES; do
+    # Remove './' from the start of the file path if present
+    [[ $file == ./* ]] && file="${file:2}"
+
     # Construct download URL
     DOWNLOAD_URL="${DOWNLOAD_BASE_URL}${file}"
 
     # Create subdirectories as needed in the destination directory
-    SUBDIR_PATH="$DEST_DIR/$(dirname "$file")"
-    mkdir -p "$SUBDIR_PATH"
+    mkdir -p "$DEST_DIR/$(dirname "$file")"
 
     # Full path where the file will be saved
-    FULL_SAVE_PATH="$SUBDIR_PATH/$(basename "$file")"
+    FULL_SAVE_PATH="$DEST_DIR/$file"
 
     # Print the full path for debugging
     echo "Downloading $file to $FULL_SAVE_PATH"
