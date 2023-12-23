@@ -36,8 +36,8 @@ cd $REPO_TEMP_DIR
 # Get list of files in the repository
 FILES=$(git ls-tree -r HEAD --name-only)
 
-# Return to the original directory
-cd ..
+# Change to the destination directory for downloading
+cd $ORIGINAL_DIR/$DEST_DIR
 
 # Download each file
 for file in $FILES; do
@@ -45,13 +45,15 @@ for file in $FILES; do
     DOWNLOAD_URL="${DOWNLOAD_BASE_URL}${file}"
 
     # Create subdirectories as needed in the destination directory
-    DEST_SUBDIR="$DEST_DIR/$(dirname "$file")"
-    mkdir -p "$DEST_SUBDIR"
+    mkdir -p "$(dirname "$file")"
 
     # Download the file
-    echo "Downloading $file to $DEST_SUBDIR..."
-    wget -P "$DEST_SUBDIR" $DOWNLOAD_URL
+    echo "Downloading $file..."
+    wget -P "$(dirname "$file")" $DOWNLOAD_URL
 done
+
+# Change back to the original directory
+cd $ORIGINAL_DIR
 
 # Clean up: remove the random temporary repository directory
 rm -rf $REPO_TEMP_DIR
