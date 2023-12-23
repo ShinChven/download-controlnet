@@ -30,7 +30,7 @@ Replace `[your-username]` and `[your-repo]` with your GitHub username and reposi
 Run the script with:
 
 ```bash
-bash hfdl.sh <repo_url> [dir_name] [--ipynb]
+hfdl <repo_url> [dir_name] [--ipynb]
 ```
 
 - `<repo_url>`: The Hugging Face repository URL.
@@ -41,15 +41,15 @@ bash hfdl.sh <repo_url> [dir_name] [--ipynb]
 
 - Download to a repository-named directory:
   ```
-  bash hfdl.sh https://huggingface.co/lllyasviel/sd_control_collection
+  hfdl https://huggingface.co/lllyasviel/sd_control_collection
   ```
 - Download to a custom directory:
   ```
-  bash hfdl.sh https://huggingface.co/lllyasviel/sd_control_collection custom_directory
+  hfdl https://huggingface.co/lllyasviel/sd_control_collection custom_directory
   ```
 - Generate `wget` commands for Jupyter notebooks:
   ```
-  bash hfdl.sh https://huggingface.co/lllyasviel/sd_control_collection --ipynb
+  hfdl https://huggingface.co/lllyasviel/sd_control_collection --ipynb
   ```
 
 ## Contributing
