@@ -45,11 +45,12 @@ for file in $FILES; do
     DOWNLOAD_URL="${DOWNLOAD_BASE_URL}${file}"
 
     # Create subdirectories as needed in the destination directory
-    mkdir -p "$DEST_DIR/$(dirname "$file")"
+    DEST_SUBDIR="$DEST_DIR/$(dirname "$file")"
+    mkdir -p "$DEST_SUBDIR"
 
     # Download the file
-    echo "Downloading $file to $DEST_DIR..."
-    wget -P "$DEST_DIR/$(dirname "$file")" $DOWNLOAD_URL
+    echo "Downloading $file to $DEST_SUBDIR..."
+    wget -P "$DEST_SUBDIR" $DOWNLOAD_URL
 done
 
 # Clean up: remove the random temporary repository directory
